@@ -1,9 +1,13 @@
 import React from 'react';
-import { Users, ShoppingBag, TrendingUp, DollarSign, Activity, AlertCircle } from 'lucide-react';
+import { Users, ShoppingBag, TrendingUp, DollarSign, Activity, AlertCircle, Package } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
+import { UserManagement } from './UserManagement';
+import { Button } from '../ui/Button';
 
 export function AdminDashboard() {
+  const [activeTab, setActiveTab] = React.useState('overview');
+
   const stats = [
     {
       name: 'Total Farmers',
@@ -66,11 +70,41 @@ export function AdminDashboard() {
     },
   ];
 
+  if (activeTab === 'users') {
+    return <UserManagement />;
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600">Monitor platform performance and manage operations</p>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'overview'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'users'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            User Management
+          </button>
+        </nav>
       </div>
 
       {/* Stats Grid */}
@@ -152,10 +186,13 @@ export function AdminDashboard() {
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
+          <button 
+            onClick={() => setActiveTab('users')}
+            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+          >
             <Users className="w-6 h-6 text-green-600 mb-2" />
-            <h4 className="font-medium text-gray-900">Manage Farmers</h4>
-            <p className="text-sm text-gray-600">Review applications and manage accounts</p>
+            <h4 className="font-medium text-gray-900">Manage Users</h4>
+            <p className="text-sm text-gray-600">Manage all user accounts</p>
           </button>
           <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
             <AlertCircle className="w-6 h-6 text-yellow-600 mb-2" />
@@ -163,9 +200,9 @@ export function AdminDashboard() {
             <p className="text-sm text-gray-600">Check flagged content and disputes</p>
           </button>
           <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
-            <TrendingUp className="w-6 h-6 text-blue-600 mb-2" />
-            <h4 className="font-medium text-gray-900">Analytics</h4>
-            <p className="text-sm text-gray-600">View detailed platform analytics</p>
+            <Package className="w-6 h-6 text-blue-600 mb-2" />
+            <h4 className="font-medium text-gray-900">Products</h4>
+            <p className="text-sm text-gray-600">Monitor product listings</p>
           </button>
         </div>
       </Card>

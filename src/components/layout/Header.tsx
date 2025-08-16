@@ -26,7 +26,6 @@ export function Header({
   const getNavigation = () => {
     const baseNav = [
       { name: 'Marketplace', id: 'marketplace' },
-      { name: 'Farmers', id: 'farmers' },
       { name: 'Trends', id: 'trends' },
     ];
 
@@ -34,6 +33,8 @@ export function Header({
       return [...baseNav, { name: 'Admin Dashboard', id: 'admin' }];
     } else if (userRole === 'superadmin') {
       return [...baseNav, { name: 'Super Admin', id: 'superadmin' }];
+    } else if (userRole === 'farmer') {
+      return [{ name: 'My Farm', id: 'farmer' }, ...baseNav];
     } else if (userRole === 'customer') {
       return [...baseNav, { name: 'My Dashboard', id: 'customer-dashboard' }];
     }

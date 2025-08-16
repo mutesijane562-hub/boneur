@@ -3,30 +3,40 @@ import { Sparkles } from 'lucide-react';
 import { SearchFilters } from '../components/marketplace/SearchFilters';
 import { ProductCard } from '../components/marketplace/ProductCard';
 import { RecommendationCard } from '../components/marketplace/RecommendationCard';
-import { mockProducts, mockFarmers } from '../utils/mockData';
+import { storage } from '../utils/storage';
 import { generateRecommendations } from '../utils/recommendations';
+import { Product, Farmer } from '../types';
 
 interface MarketplaceViewProps {
   onAddToCart: (productId: string) => void;
 }
 
 export function MarketplaceView({ onAddToCart }: MarketplaceViewProps) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [farmers, setFarmers] = useState<Farmer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [sortBy, setSortBy] = useState('recommended');
+
+  React.useEffect(() => {
+    const allProducts = storage.getProducts().filter(p => p.isActive);
+    const allFarmers = storage.getUsers().filter(u => u.role === 'farmer');
+    setProducts(allProducts);
+    setFarmers(allFarmers as Farmer[]);
+  }, []);
 
   // Mock user location (Kigali)
   const userLocation = { lat: -1.9441, lng: 30.0619 };
 
   // Generate AI recommendations
   const recommendations = useMemo(() => {
-    return generateRecommendations(mockProducts, userLocation, selectedCategory === 'all' ? undefined : selectedCategory);
-  }, [selectedCategory]);
+    return generateRecommendations(products, userLocation, selectedCategory === 'all' ? undefined : selectedCategory);
+  }, [selectedCategory, products]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = mockProducts.filter(product => {
+    let filtered = products.filter(product => {
       const matchesSearch = searchQuery === '' || 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -63,7 +73,7 @@ export function MarketplaceView({ onAddToCart }: MarketplaceViewProps) {
     }
 
     return filtered;
-  }, [searchQuery, selectedCategory, priceRange, sortBy]);
+  }, [searchQuery, selectedCategory, priceRange, sortBy, products]);
 
   const calculateDistance = (productLat: number, productLng: number) => {
     const R = 6371; // Earth's radius in km
@@ -100,8 +110,8 @@ export function MarketplaceView({ onAddToCart }: MarketplaceViewProps) {
             </div>
             <div className="space-y-4">
               {recommendations.slice(0, 3).map((rec) => {
-                const product = mockProducts.find(p => p.id === rec.productId);
-                const farmer = mockFarmers.find(f => f.id === product?.farmerId);
+                const product = products.find(p => p.id === rec.productId);
+                const farmer = farmers.find(f => f.id === product?.farmerId);
                 if (!product || !farmer) return null;
                 
                 return (
@@ -136,7 +146,7 @@ export function MarketplaceView({ onAddToCart }: MarketplaceViewProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => {
-              const farmer = mockFarmers.find(f => f.id === product.farmerId);
+              const farmer = farmers.find(f => f.id === product.farmerId);
               if (!farmer) return null;
               
               const distance = calculateDistance(product.location.lat, product.location.lng);

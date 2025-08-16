@@ -11,6 +11,7 @@ export interface User {
   avatar?: string;
   phone?: string;
   createdAt: Date;
+  isActive: boolean;
 }
 
 export interface CartItem {
@@ -49,14 +50,18 @@ export interface Product {
   };
   createdAt: Date;
   updatedAt: Date;
+  isActive: boolean;
 }
 
 export interface Order {
   id: string;
   customerId: string;
+  customerName: string;
+  customerPhone: string;
   farmerId: string;
   products: {
     productId: string;
+    productName: string;
     quantity: number;
     price: number;
   }[];
@@ -65,6 +70,7 @@ export interface Order {
   deliveryAddress: string;
   estimatedDelivery: Date;
   createdAt: Date;
+  notes?: string;
 }
 
 export interface Farmer extends User {

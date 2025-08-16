@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
 import { Header } from './components/layout/Header';
 import { MarketplaceView } from './views/MarketplaceView';
-import { FarmersView } from './views/FarmersView';
+import { FarmerView } from './views/FarmerView';
 import { TrendsView } from './views/TrendsView';
 import { AdminView } from './views/AdminView';
 import { SuperAdminView } from './views/SuperAdminView';
 import { CustomerDashboardView } from './views/CustomerDashboardView';
 import { AuthView } from './views/AuthView';
 import { CartView } from './views/CartView';
+import { CheckoutModal } from './components/marketplace/CheckoutModal';
 import { CartItem } from './types';
-import { mockProducts, mockFarmers } from './utils/mockData';
+import { storage } from './utils/storage';
 
 function App() {
   const [currentView, setCurrentView] = useState('marketplace');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const handleAddToCart = (productId: string) => {
-    const product = mockProducts.find(p => p.id === productId);
+    const products = storage.getProducts();
+    const product = products.find(p => p.id === productId);
     if (!product) return;
 
     const existingItem = cartItems.find(item => item.productId === productId);
@@ -56,14 +59,18 @@ function App() {
   };
 
   const handleCheckout = () => {
-    alert('Checkout functionality would be implemented here');
-    // In a real app, this would navigate to checkout page
+    if (!isAuthenticated) {
+      setCurrentView('signin');
+      return;
+    }
+    setShowCheckout(true);
   };
 
-  const handleViewProducts = (farmerId: string) => {
-    // In a real app, this would navigate to farmer's products page
-    console.log('View products for farmer:', farmerId);
-    setCurrentView('marketplace');
+  const handleCheckoutSuccess = () => {
+    setCartItems([]);
+    setShowCheckout(false);
+    alert('Order placed successfully! Farmers will contact you soon.');
+    setCurrentView('customer-dashboard');
   };
 
   const handleAuthenticate = (userData: any) => {
@@ -75,6 +82,8 @@ function App() {
       setCurrentView('admin');
     } else if (userData.role === 'superadmin') {
       setCurrentView('superadmin');
+    } else if (userData.role === 'farmer') {
+      setCurrentView('farmer');
     } else if (userData.role === 'customer') {
       setCurrentView('customer-dashboard');
     } else {
@@ -102,8 +111,6 @@ function App() {
         return (
           <CartView
             cartItems={cartItems}
-            products={mockProducts}
-            farmers={mockFarmers}
             onUpdateQuantity={handleUpdateCartQuantity}
             onRemoveItem={handleRemoveFromCart}
             onCheckout={handleCheckout}
@@ -112,8 +119,8 @@ function App() {
         );
       case 'marketplace':
         return <MarketplaceView onAddToCart={handleAddToCart} />;
-      case 'farmers':
-        return <FarmersView onViewProducts={handleViewProducts} />;
+      case 'farmer':
+        return <FarmerView farmerId={user?.id} />;
       case 'trends':
         return <TrendsView />;
       case 'admin':
@@ -141,6 +148,17 @@ function App() {
         />
       )}
       {renderCurrentView()}
+      
+      {showCheckout && (
+        <CheckoutModal
+          cartItems={cartItems}
+          total={cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+          onClose={() => setShowCheckout(false)}
+          onSuccess={handleCheckoutSuccess}
+          customerId={user?.id || ''}
+          customerName={user?.name || ''}
+        />
+      )}
     </div>
   );
 }

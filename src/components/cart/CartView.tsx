@@ -3,29 +3,38 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { CartItem, Product, Farmer } from '../../types';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
+import { storage } from '../../utils/storage';
 
 interface CartViewProps {
   cartItems: CartItem[];
-  products: Product[];
-  farmers: Farmer[];
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
   onCheckout: () => void;
   onBackToShopping: () => void;
+  products?: Product[];
+  farmers?: Farmer[];
 }
 
 export function CartView({
   cartItems,
-  products,
-  farmers,
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
-  onBackToShopping
+  onBackToShopping,
+  products = [],
+  farmers = []
 }: CartViewProps) {
+  const [allProducts, setAllProducts] = React.useState<Product[]>([]);
+  const [allFarmers, setAllFarmers] = React.useState<Farmer[]>([]);
+
+  React.useEffect(() => {
+    setAllProducts(storage.getProducts());
+    setAllFarmers(storage.getUsers().filter(u => u.role === 'farmer') as Farmer[]);
+  }, []);
+
   const getCartItemDetails = (item: CartItem) => {
-    const product = products.find(p => p.id === item.productId);
-    const farmer = farmers.find(f => f.id === item.farmerId);
+    const product = allProducts.find(p => p.id === item.productId);
+    const farmer = allFarmers.find(f => f.id === item.farmerId);
     return { product, farmer };
   };
 
