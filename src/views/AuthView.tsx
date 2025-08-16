@@ -12,11 +12,24 @@ export function AuthView({ mode, onAuthenticate }: AuthViewProps) {
 
   const handleSignIn = (email: string, password: string) => {
     // Mock authentication logic
+    const users = storage.getUsers();
+    const user = users.find(u => u.email === email);
+    
+    if (user) {
+      onAuthenticate(user);
+      return;
+    }
+
+    // Fallback to demo accounts
     let userData = {
       id: '1',
       name: 'Demo User',
       email: email,
-      role: 'customer'
+      role: 'customer',
+      location: { lat: -1.9441, lng: 30.0619, address: 'Kigali, Rwanda' },
+      phone: '+250788000000',
+      createdAt: new Date(),
+      isActive: true
     };
 
     // Demo account logic
@@ -38,8 +51,14 @@ export function AuthView({ mode, onAuthenticate }: AuthViewProps) {
     const newUser = {
       id: Date.now().toString(),
       ...userData,
-      createdAt: new Date()
+      createdAt: new Date(),
+      isActive: true,
+      location: { lat: -1.9441, lng: 30.0619, address: userData.location || 'Kigali, Rwanda' }
     };
+
+    // Save to storage
+    const users = storage.getUsers();
+    storage.saveUsers([...users, newUser]);
 
     onAuthenticate(newUser);
   };

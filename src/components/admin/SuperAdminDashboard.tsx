@@ -14,8 +14,11 @@ import {
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
+import { UserManagement } from './UserManagement';
 
 export function SuperAdminDashboard() {
+  const [activeTab, setActiveTab] = React.useState('overview');
+
   const systemStats = [
     {
       name: 'Total Users',
@@ -98,11 +101,41 @@ export function SuperAdminDashboard() {
     }
   ];
 
+  if (activeTab === 'users') {
+    return <UserManagement />;
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Super Admin Dashboard</h1>
         <p className="text-gray-600">System-wide monitoring and administration</p>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'overview'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'users'
+                ? 'border-purple-500 text-purple-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            User Management
+          </button>
+        </nav>
       </div>
 
       {/* System Stats */}
@@ -207,6 +240,14 @@ export function SuperAdminDashboard() {
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">System Management</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button 
+            onClick={() => setActiveTab('users')}
+            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+          >
+            <Users className="w-6 h-6 text-green-600 mb-2" />
+            <h4 className="font-medium text-gray-900">Users</h4>
+            <p className="text-sm text-gray-600">Manage all system users</p>
+          </button>
           <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
             <Shield className="w-6 h-6 text-red-600 mb-2" />
             <h4 className="font-medium text-gray-900">Security</h4>
